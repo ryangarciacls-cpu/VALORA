@@ -1,0 +1,115 @@
+/* Barra lateral compartilhada (componente Sidebar) */
+.dash-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 14px;
+  /* degradê: laranja queimado no topo -> pêssego claro embaixo */
+  background: linear-gradient(180deg, #a84f0f 0%, #c8692a 30%, #e3a07a 70%, #f1bb9f 100%);
+  color: #fff;
+}
+
+.dash-logo {
+  margin: 0 0 28px;
+}
+
+.dash-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* ---------- Navegação ---------- */
+.dash-sidebar nav {
+  margin: 0;
+}
+
+.dash-sidebar ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #92480c;
+  color: #fff;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(60, 25, 0, 0.25);
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.dash-menu-item:hover {
+  filter: brightness(1.15);
+}
+
+.dash-menu-item--ativo {
+  background: #5c2900;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.dash-menu-item span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.dash-seta {
+  display: inline-flex;
+  transition: transform 0.2s;
+}
+
+.dash-seta--aberta {
+  transform: rotate(90deg);
+}
+
+.dash-sidebar .dash-submenu {
+  gap: 2px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 0 0 10px 10px;
+  background: #6f3200;
+}
+
+.dash-menu-item--aberto {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.dash-submenu-item {
+  display: block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dash-submenu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dash-submenu-item--ativo {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.dash-menu-item.dash-menu-item--destaque {
+  display: block;
+  padding: 16px 14px;
+  font-size: 1.55rem;
+  line-height: 1.2;
+  text-align: center;
+}

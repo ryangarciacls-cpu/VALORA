@@ -1,0 +1,295 @@
+/* ==========================================================
+   VALORA - PADRÃO VISUAL COMPARTILHADO
+   Importado por último no main.jsx, então vale para todas as
+   páginas. Para mudar cor ou fonte do sistema, mexa só aqui.
+   ========================================================== */
+
+:root {
+  --cor-primaria: #8d3604;
+  --cor-primaria-hover: #642603;
+  --fonte-sistema: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ---------- Fonte única (inclui as telas de detalhes, que usavam Roboto) ---------- */
+.dash,
+.detalhes-layout {
+  font-family: var(--fonte-sistema);
+}
+
+.dash button,
+.dash input,
+.dash select,
+.dash textarea,
+.detalhes-layout button,
+.detalhes-layout input,
+.detalhes-layout select,
+.detalhes-layout textarea {
+  font-family: inherit;
+}
+
+/* ---------- Sem itálico (a Home não usa) ---------- */
+.dash *,
+.detalhes-layout * {
+  font-style: normal;
+}
+
+/* ---------- Botão principal do cabeçalho (Adicionar) ---------- */
+.eq-adicionar,
+.fn-adicionar,
+.lc-adicionar,
+.st-adicionar,
+.mt-adicionar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.eq-adicionar:hover,
+.fn-adicionar:hover,
+.lc-adicionar:hover,
+.st-adicionar:hover,
+.mt-adicionar:hover {
+  background: var(--cor-primaria-hover);
+  filter: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- Botão Salvar dos modais/formulários ---------- */
+.fn-salvar,
+.lc-salvar,
+.st-salvar,
+.nm-salvar {
+  background: var(--cor-primaria);
+}
+
+.fn-salvar:hover,
+.lc-salvar:hover,
+.st-salvar:hover,
+.nm-salvar:hover {
+  background: var(--cor-primaria-hover);
+}
+
+.dash-sidebar nav {
+  position: sticky;
+  top: 24px;
+}
+
+.dash-rodape {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(60, 25, 0, 0.18);
+  position: sticky;
+  bottom: 24px;
+}
+
+.dash-atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4b2a14;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dash-atalho:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.dash-atalho:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.dash-versao {
+  padding: 0 10px;
+  color: rgba(75, 42, 20, 0.65);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.dash-conta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(60, 25, 0, 0.14);
+}
+
+.dash-conta-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #5c2900;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.dash-conta-dados {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.dash-conta-dados strong {
+  overflow: hidden;
+  color: #3b1d0a;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-conta-dados small {
+  color: rgba(59, 29, 10, 0.7);
+  font-size: 0.78rem;
+}
+
+.dash-conta-sair {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #3b1d0a;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s, color 0.2s, filter 0.2s;
+}
+
+.dash-conta-sair:hover {
+  opacity: 1;
+  background: #fff1ec;
+  color: #c0301a;
+  filter: brightness(1.15);
+}
+
+.dash-conta:hover {
+  background: rgba(60, 25, 0, 0.22);
+}
+
+.dash-conta-perfil {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dash-conta-seta {
+  display: inline-flex;
+  color: #3b1d0a;
+  transform: rotate(-90deg);
+  transition: transform 0.2s;
+}
+
+.dash-conta-seta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dash-conta-seta--aberta {
+  transform: rotate(90deg);
+}
+
+.dash-conta-menu {
+  margin-bottom: 8px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(60, 25, 0, 0.22);
+}
+
+.dash-conta-opcao {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #3b1d0a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dash-conta-opcao:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.lg-pagina {
+  font-family: var(--fonte-sistema);
+}
+
+.lg-pagina button,
+.lg-pagina input {
+  font-family: inherit;
+}
+
+/* classe repetida de propósito: precisa vencer regras como ".lg-campo > span" */
+.lg-pagina.lg-pagina * {
+  font-style: normal;
+}
+
+.lg-apresentacao {
+  background: linear-gradient(180deg, #a84f0f 0%, #c8692a 55%, #d9834f 100%);
+}
+
+.lg-logo img {
+  display: block;
+  width: 230px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.lg-entrar,
+.lg-cadastrese {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lg-formulario .lg-logo {
+  margin: 8px 0 36px;
+}
+
+.lg-slogan {
+  max-width: 320px;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+}

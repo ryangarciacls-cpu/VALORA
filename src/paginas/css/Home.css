@@ -14,131 +14,22 @@
   display: grid;
   grid-template-columns: 250px 1fr;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: #fff;
   color: var(--marrom);
+}
+
+.dash button,
+.dash input,
+.dash select,
+.dash textarea {
+  font-family: inherit;
 }
 
 .dash *,
 .dash *::before,
 .dash *::after {
   box-sizing: border-box;
-}
-
-/* ---------- Sidebar ---------- */
-.dash-sidebar {
-  display: flex;
-  flex-direction: column;
-  padding: 24px 14px;
-  background: var(--laranja);
-  color: #fff;
-}
-
-.dash-sidebar h1 {
-  margin: 0 0 20px;
-  text-align: center;
-  font-size: 3rem;
-  font-style: "Roboto Mono", monospace;
-  font-weight: 900;
-}
-
-.dash-usuario {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 800;
-  font-style: "Roboto Mono", monospace;
-}
-
-.dash-usuario p {
-  margin: 8px 0 0;
-}
-
-.dash-avatar {
-  display: inline-flex;
-  padding: 2px;
-  border-radius: 50%;
-  background: #fff;
-  color: #111;
-}
-
-/* ---------- Navegação ---------- */
-.dash-sidebar nav {
-  margin: 32px 0 0;
-}
-
-.dash-sidebar ul {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 7px 14px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--marrom-menu);
-  color: #fff;
-  font: inherit;
-  font-size: 1.25rem;
-  font-weight: 800;
-  font-style: "Roboto Mono", monospace;
-  cursor: pointer;
-}
-
-.dash-menu-item:hover {
-  filter: brightness(1.15);
-}
-
-.dash-menu-item--ativo {
-  background: #5c2900;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
-}
-
-.dash-menu-item span {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.dash-seta {
-  transition: transform 0.2s;
-}
-
-.dash-seta--aberta {
-  transform: rotate(90deg);
-}
-
-.dash-sidebar .dash-submenu {
-  gap: 2px;
-  margin: 0;
-  padding: 6px;
-  border-radius: 0 0 10px 10px;
-  background: #6f3200;
-
-}
-.dash-menu-item--aberto {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.dash-submenu-item {
-  display: block;
-  padding: 6px 12px;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.dash-submenu-item:hover {
-  background: rgba(255, 255, 255, 0.15);
 }
 
 /* ---------- Conteúdo ---------- */
@@ -153,7 +44,7 @@
 
 .dash-conteudo h2 {
   font-size: 2.4rem;
-  font-style: roboto mono, monospace;
+  font-style: normal;
   font-weight: 800;
 }
 
@@ -374,13 +265,13 @@
 .home-secao-cabecalho p,
 .home-painel-cabecalho p {
   color: #806f62;
-  font-size: 0.94rem;
+  font-size: 1.04rem;
   line-height: 1.5;
 }
 
 .home-sobretitulo {
   color: #a84a0b;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.13em;
 }
@@ -395,7 +286,7 @@
   border-radius: 9px;
   background: #8a3f00;
   color: #fff;
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -434,7 +325,7 @@
 
 .home-atualizacao {
   color: #8a6a52;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -495,7 +386,7 @@
 
 .home-kpi-rotulo {
   color: #756457;
-  font-size: 0.76rem;
+  font-size: 0.86rem;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -510,7 +401,7 @@
 
 .home-kpi-conteudo small {
   color: #998779;
-  font-size: 0.69rem;
+  font-size: 0.79rem;
   line-height: 1.35;
 }
 
@@ -535,11 +426,11 @@
 }
 
 .home-painel-cabecalho h3 {
-  font-size: 1rem;
+  font-size: 1.0rem;
 }
 
 .home-painel-cabecalho p {
-  font-size: 0.79rem;
+  font-size: 0.89rem;
 }
 
 .home-painel-icone {
@@ -585,13 +476,13 @@
 
 .home-faixa-topo strong {
   color: #574333;
-  font-size: 0.83rem;
+  font-size: 0.93rem;
 }
 
 .home-faixa-quantidade {
   margin-left: auto;
   color: #49301f;
-  font-size: 0.84rem;
+  font-size: 0.94rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -599,7 +490,7 @@
 .home-faixa-topo small {
   width: 38px;
   color: #8b7b6e;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   text-align: right;
 }
 
@@ -625,7 +516,7 @@
   padding-top: 13px;
   border-top: 1px solid #f0e8e1;
   color: #8b7b6e;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
 }
 
 .home-link-painel {
@@ -633,7 +524,7 @@
   align-items: center;
   gap: 3px;
   color: #985019;
-  font-size: 0.76rem;
+  font-size: 0.86rem;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -656,7 +547,7 @@
 
 .home-manutencao-total span {
   color: #786556;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
 }
 
@@ -679,12 +570,12 @@
   align-items: center;
   gap: 9px;
   color: #756457;
-  font-size: 0.81rem;
+  font-size: 0.91rem;
 }
 
 .home-manutencao-status strong {
   color: #49301f;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -713,7 +604,7 @@
   width: 100%;
   border-collapse: collapse;
   color: #5b4738;
-  font-size: 0.76rem;
+  font-size: 0.86rem;
   text-align: left;
 }
 
@@ -721,7 +612,7 @@
   padding: 10px 9px;
   border-bottom: 1px solid #e9ded4;
   color: #8a7665;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -748,7 +639,7 @@
   margin-top: 3px;
   overflow: hidden;
   color: #978779;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 400;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -760,7 +651,7 @@
   max-width: 180px;
   padding: 5px 8px;
   border-radius: 99px;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 800;
   line-height: 1.2;
   white-space: nowrap;
@@ -790,7 +681,7 @@
 
 .home-link-detalhes {
   color: #985019;
-  font-size: 0.73rem;
+  font-size: 0.83rem;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -809,14 +700,14 @@
 .home-vazio strong {
   margin-top: 8px;
   color: #4f3a29;
-  font-size: 0.86rem;
+  font-size: 0.96rem;
 }
 
 .home-vazio p {
   max-width: 340px;
   margin-top: 5px;
   color: #8b7b6e;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   line-height: 1.5;
 }
 

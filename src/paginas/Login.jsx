@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './css/Login.css'
+import { salvarSessao } from '../servicos/sessaoServico'
+import logo from '../img/valora-logo.png'
 
 // Os três destaques do painel esquerdo.
 const destaques = [
@@ -96,7 +98,7 @@ export default function Login() {
 
     // TODO: validar o usuário e a senha no banco de dados / API.
     // Por enquanto, qualquer usuário e senha preenchidos entram no sistema.
-    console.log('Login:', { usuario: usuario.trim(), lembrar })
+   salvarSessao(usuario)
 
     navigate('/')
   }
@@ -106,7 +108,6 @@ export default function Login() {
       <div className="lg-cartao">
         {/* ---------- Painel esquerdo ---------- */}
         <section className="lg-apresentacao">
-          <h1 className="lg-logo">VALORA</h1>
           <p className="lg-slogan">Gestão inteligente de ativos de TI.</p>
 
           <ul className="lg-destaques">
@@ -126,10 +127,9 @@ export default function Login() {
 
         {/* ---------- Painel direito: formulário ---------- */}
         <section className="lg-formulario">
-          <span className="lg-avatar">
-            <Icone nome="usuario" tamanho={52} />
-          </span>
-          <h2>Bem Vindo</h2>
+          <h1 className="lg-logo">
+  <img src={logo} alt="VALORA" />
+</h1>
 
           <form onSubmit={entrar} noValidate>
             <label className="lg-campo">
