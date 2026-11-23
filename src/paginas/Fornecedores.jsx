@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../componentes/sidebar'
 import { listarFornecedores, cadastrarFornecedor} from '../servicos/fornecedorServico'
+import { listarEquipamentos } from '../servicos/equipamentoServico'
+import { exportarCsv, formatarCnpj, contarPor, contarStatus } from '../servicos/listagemServico'
+import FiltroStatus from '../componentes/filtroStatus'
+import BotaoExportar from '../componentes/botaoExportar'
 import './css/Home.css' // layout e sidebar compartilhados (o mesmo CSS do Equipamentos.jsx)
 import './css/Fornecedores.css'
 
@@ -37,6 +41,8 @@ function mascararCnpj(valor) {
 
 export default function Fornecedores() {
   const [fornecedores, setFornecedores] = useState([])
+  const [equipamentos, setEquipamentos] = useState([])
+  const [filtroStatus, setFiltroStatus] = useState('Todos')
   const [salvando, setSalvando] = useState(false)
   const [busca, setBusca] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
@@ -47,8 +53,12 @@ export default function Fornecedores() {
   useEffect(() => {
     async function carregarFornecedores() {
       try {
-        const dados = await listarFornecedores()
+        const [dados, dadosEquipamentos] = await Promise.all([
+          listarFornecedores(),
+          listarEquipamentos().catch(() => []), // sem equipamentos, só some a contagem
+        ])
         setFornecedores(dados)
+        setEquipamentos(dadosEquipamentos)
       } catch (error) {
         console.error('Erro ao carregar fornecedores:', error)
         setErro('Não foi possível carregar os fornecedores.')
@@ -61,18 +71,27 @@ export default function Fornecedores() {
   // Aplica a busca por texto em todas as colunas (o CNPJ também é achado só pelos números).
   const listaFiltrada = useMemo(() => {
     const termo = busca.trim().toLowerCase()
-    if (!termo) return fornecedores
+    const porStatus =
+      filtroStatus === 'Todos'
+        ? fornecedores
+        : fornecedores.filter((f) => f.status === filtroStatus)
+
+    if (!termo) return porStatus
 
     const termoNumerico = somenteDigitos(termo)
 
-    return fornecedores.filter(
+    return porStatus.filter(
       (f) =>
         [f.id, f.nomeFantasia, f.razaoSocial, f.cnpj, f.status].some((campo) =>
           String(campo).toLowerCase().includes(termo),
         ) ||
         (termoNumerico && somenteDigitos(f.cnpj).includes(termoNumerico)),
     )
-  }, [busca, fornecedores])
+  }, [busca, fornecedores, filtroStatus])
+
+  // Contagens exibidas na tabela e nos botões de filtro
+  const contagemEquipamentos = useMemo(() => contarPor(equipamentos, 'fornecedorId'), [equipamentos])
+  const contagemStatus = useMemo(() => contarStatus(fornecedores), [fornecedores])
 
   function fecharModal() {
     setModalAberto(false)
@@ -146,27 +165,55 @@ export default function Fornecedores() {
     }
   }
 
+  // Baixa em CSV exatamente o que está na tela (respeita busca e filtro).
+  function exportar() {
+    exportarCsv(
+      'fornecedores',
+      ['ID', 'Nome', 'Razão social', 'CNPJ', 'Equipamentos', 'Status'],
+      listaFiltrada.map((f) => [
+        f.id,
+        f.nomeFantasia,
+        f.razaoSocial,
+        formatarCnpj(f.cnpj),
+        contagemEquipamentos.get(String(f.id)) || 0,
+        f.status,
+      ])
+    )
+  }
+
   return (
     <div className="dash">
       <Sidebar ativo="Cadastro" abertoInicial="Cadastro" />
 
       <main className="dash-conteudo">
-        <h2 className="dash-titulo">Fornecedores</h2>
+        <header className="pg-cabecalho">
+          <span className="pg-sobretitulo">Cadastro</span>
+          <h2 className="dash-titulo">Fornecedores</h2>
+          <p className="pg-subtitulo">Empresas que fornecem equipamentos e serviços, com razão social e CNPJ.</p>
+        </header>
 
         <div className="fn-barra">
-          <label className="fn-busca">
-            <input
-              type="search"
-              placeholder="Buscar"
-              aria-label="Buscar fornecedor"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
-          </label>
+          <div className="pg-filtros">
+            <label className="fn-busca">
+              <input
+                type="search"
+                placeholder="Buscar"
+                aria-label="Buscar fornecedor"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </label>
 
-          <button type="button" className="fn-adicionar" onClick={() => setModalAberto(true)}>
-            Adicionar
-          </button>
+            <FiltroStatus valor={filtroStatus} aoMudar={setFiltroStatus} contagens={contagemStatus} />
+          </div>
+
+          <div className="pg-acoes">
+            <BotaoExportar aoClicar={exportar} desabilitado={listaFiltrada.length === 0} />
+
+            <button type="button" className="fn-adicionar" onClick={() => setModalAberto(true)}>
+              Adicionar
+            </button>
+          </div>
         </div>
 
         <div className="fn-tabela-caixa">
@@ -177,6 +224,7 @@ export default function Fornecedores() {
                 <th>Nome</th>
                 <th>Razão social</th>
                 <th>CNPJ</th>
+                <th>Equipamentos</th>
                 <th>Status</th>
                 <th aria-label="Ações" />
               </tr>
@@ -184,7 +232,7 @@ export default function Fornecedores() {
             <tbody>
               {listaFiltrada.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="fn-vazio">
+                  <td colSpan={7} className="fn-vazio">
                     Nenhum fornecedor encontrado.
                   </td>
                 </tr>
@@ -195,7 +243,8 @@ export default function Fornecedores() {
                   <td>{f.id}</td>
                   <td>{f.nomeFantasia}</td>
                   <td>{f.razaoSocial}</td>
-                  <td>{f.cnpj}</td>
+                  <td>{formatarCnpj(f.cnpj)}</td>
+                  <td>{contagemEquipamentos.get(String(f.id)) || 0}</td>
                   <td className={classeStatus[f.status]}>{f.status}</td>
                   <td className="fn-coluna-acao">
                     <Link to={`/fornecedores/${f.id}`} className="dash-ver-detalhes">

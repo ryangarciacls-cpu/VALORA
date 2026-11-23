@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../componentes/sidebar'
-import { listarSetores, cadastrarSetor } from '../servicos/setorServico'
-import { listarLocalizacoes } from '../servicos/localizacaoServico'
+import { listarSetores } from '../servicos/setorServico'
+import { listarLocalizacoes, cadastrarLocalizacao } from '../servicos/localizacaoServico'
+import { listarEquipamentos } from '../servicos/equipamentoServico'
+import { exportarCsv, contarPor, contarStatus } from '../servicos/listagemServico'
+import FiltroStatus from '../componentes/filtroStatus'
+import BotaoExportar from '../componentes/botaoExportar'
 import './css/Home.css' // layout e sidebar compartilhados (o mesmo CSS do Equipamentos.jsx)
 import './css/Localizacoes.css'
 
@@ -25,6 +29,8 @@ const formularioVazio = {
 export default function Localizacoes() {
   const [localizacoes, setLocalizacoes] = useState([])
   const [setores, setSetores] = useState([])
+  const [equipamentos, setEquipamentos] = useState([])
+  const [filtroStatus, setFiltroStatus] = useState('Todos')
 
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
@@ -41,13 +47,15 @@ export default function Localizacoes() {
           setCarregando(true)
           setErro('')
 
-          const [dadosLocalizacoes, dadosSetores] = await Promise.all([
+          const [dadosLocalizacoes, dadosSetores, dadosEquipamentos] = await Promise.all([
             listarLocalizacoes(),
             listarSetores(),
+            listarEquipamentos().catch(() => []), // sem equipamentos, só some a contagem
           ])
 
           setLocalizacoes(dadosLocalizacoes)
           setSetores(dadosSetores)
+          setEquipamentos(dadosEquipamentos)
         } catch (error) {
           console.error('Erro ao carregar localizações:', error)
           setErro('Não foi possível carregar as localizações.')
@@ -86,7 +94,12 @@ export default function Localizacoes() {
             )
           )
         })
-    }, [localizacoes, setores, busca])
+        .filter((l) => filtroStatus === 'Todos' || l.status === filtroStatus)
+    }, [localizacoes, setores, busca, filtroStatus])
+
+    // Contagens exibidas na tabela e nos botões de filtro
+    const contagemEquipamentos = useMemo(() => contarPor(equipamentos, 'localizacaoId'), [equipamentos])
+    const contagemStatus = useMemo(() => contarStatus(localizacoes), [localizacoes])
 
     function fecharModal() {
       setModalAberto(false)
@@ -146,32 +159,60 @@ export default function Localizacoes() {
       }
     } 
 
+  // Baixa em CSV exatamente o que está na tela (respeita busca e filtro).
+  function exportar() {
+    exportarCsv(
+      'localizacoes',
+      ['ID', 'Nome', 'Setor', 'Descrição', 'Equipamentos', 'Status'],
+      listaFiltrada.map((l) => [
+        l.id,
+        l.nome,
+        l.setorNome,
+        l.descricao || '',
+        contagemEquipamentos.get(String(l.id)) || 0,
+        l.status,
+      ])
+    )
+  }
+
   return (
   <div className="dash">
       <Sidebar ativo="Cadastro" abertoInicial="Cadastro" />
 
       <main className="dash-conteudo">
-        <h2 className="dash-titulo">Localizações</h2>
+        <header className="pg-cabecalho">
+          <span className="pg-sobretitulo">Cadastro</span>
+          <h2 className="dash-titulo">Localizações</h2>
+          <p className="pg-subtitulo">Salas e ambientes onde os equipamentos ficam, organizados por setor.</p>
+        </header>
 
         <div className="lc-barra">
-          <label className="lc-busca">
-            <input
-              type="search"
-              placeholder="Buscar"
-              aria-label="Buscar localização"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
-          </label>
+          <div className="pg-filtros">
+            <label className="lc-busca">
+              <input
+                type="search"
+                placeholder="Buscar"
+                aria-label="Buscar localização"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </label>
 
-          <button
-            type="button"
-            className="lc-adicionar"
-            onClick={() => setModalAberto(true)}
-            disabled={setores.length === 0}
-          >
-            Adicionar
-          </button>
+            <FiltroStatus valor={filtroStatus} aoMudar={setFiltroStatus} contagens={contagemStatus} />
+          </div>
+
+          <div className="pg-acoes">
+            <BotaoExportar aoClicar={exportar} desabilitado={listaFiltrada.length === 0} />
+
+            <button
+              type="button"
+              className="lc-adicionar"
+              onClick={() => setModalAberto(true)}
+              disabled={setores.length === 0}
+            >
+              Adicionar
+            </button>
+          </div>
         </div>
 
         <div className="lc-tabela-caixa">
@@ -182,6 +223,7 @@ export default function Localizacoes() {
                 <th>Nome</th>
                 <th>Setor</th>
                 <th>Descrição</th>
+                <th>Equipamentos</th>
                 <th>Status</th>
                 <th aria-label="Ações" />
               </tr>
@@ -190,19 +232,19 @@ export default function Localizacoes() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={4} className="lc-vazio">
+                  <td colSpan={7} className="lc-vazio">
                     Carregando localizações...
                   </td>
                 </tr>
               ) : erro && localizacoes.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="lc-vazio">
+                  <td colSpan={7} className="lc-vazio">
                     {erro}
                   </td>
                 </tr>
               ) : listaFiltrada.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="lc-vazio">
+                  <td colSpan={7} className="lc-vazio">
                     Nenhuma localização encontrada.
                   </td>
                 </tr>
@@ -213,6 +255,7 @@ export default function Localizacoes() {
                     <td>{l.nome}</td>
                     <td>{l.setorNome}</td>
                     <td>{l.descricao || '-'}</td>
+                    <td>{contagemEquipamentos.get(String(l.id)) || 0}</td>
                     <td className={classeStatus[l.status]}>
                       {l.status}
                     </td>

@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../componentes/sidebar'
 import { listarSetores, cadastrarSetor } from '../servicos/setorServico'
 import { listarLocalizacoes } from '../servicos/localizacaoServico'
+import { listarEquipamentos } from '../servicos/equipamentoServico'
+import { exportarCsv, contarPor, contarStatus } from '../servicos/listagemServico'
+import FiltroStatus from '../componentes/filtroStatus'
+import BotaoExportar from '../componentes/botaoExportar'
 import './css/Home.css' // layout e sidebar compartilhados (o mesmo CSS do Equipamentos.jsx)
 import './css/Setores.css'
 
@@ -21,14 +25,11 @@ const formularioVazio = {
   status: 'Ativo'
 }
 
-// Descobre o nome da localização a partir do ID.
-function nomeLocalizacao(id) {
-  return localizacoes.find((l) => String(l.id) === String(id))?.nome ?? '-'
-}
-
 export default function Setores() {
   const [setores, setSetores] = useState([])
   const [localizacoes, setLocalizacoes] = useState([])
+  const [equipamentos, setEquipamentos] = useState([])
+  const [filtroStatus, setFiltroStatus] = useState('Todos')
 
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
@@ -44,13 +45,15 @@ export default function Setores() {
         setCarregando(true)
         setErro('')
 
-        const [dadosSetores, dadosLocalizacoes] = await Promise.all([
+        const [dadosSetores, dadosLocalizacoes, dadosEquipamentos] = await Promise.all([
           listarSetores(),
           listarLocalizacoes(),
+          listarEquipamentos().catch(() => []), // sem equipamentos, só some a contagem
         ])
 
         setSetores(dadosSetores)
         setLocalizacoes(dadosLocalizacoes)
+        setEquipamentos(dadosEquipamentos)
 
       } catch (error) {
         console.error('Erro ao carregar setores:', error)
@@ -63,21 +66,23 @@ export default function Setores() {
     carregarDados()
   }, [])
 
-  // Aplica a busca por texto em todas as colunas.
+  // Aplica o filtro de status e a busca por texto em todas as colunas.
   const listaFiltrada = useMemo(() => {
     const termo = busca.trim().toLowerCase()
 
-    return setores.filter((s) =>
-      [
-        s.id,
-        s.nome,
-        s.descricao,
-        s.status,
-      ].some((campo) =>
-        String(campo ?? '').toLowerCase().includes(termo)
+    return setores
+      .filter((s) => filtroStatus === 'Todos' || s.status === filtroStatus)
+      .filter((s) =>
+        [s.id, s.nome, s.descricao, s.status].some((campo) =>
+          String(campo ?? '').toLowerCase().includes(termo)
+        )
       )
-    )
-  }, [busca, setores])
+  }, [busca, setores, filtroStatus])
+
+  // Contagens exibidas na tabela e nos botões de filtro
+  const contagemLocalizacoes = useMemo(() => contarPor(localizacoes, 'setorId'), [localizacoes])
+  const contagemEquipamentos = useMemo(() => contarPor(equipamentos, 'setorId'), [equipamentos])
+  const contagemStatus = useMemo(() => contarStatus(setores), [setores])
 
   function fecharModal() {
     setModalAberto(false)
@@ -129,27 +134,55 @@ export default function Setores() {
     }
   }
 
+  // Baixa em CSV exatamente o que está na tela (respeita busca e filtro).
+  function exportar() {
+    exportarCsv(
+      'setores',
+      ['ID', 'Nome', 'Descrição', 'Localizações', 'Equipamentos', 'Status'],
+      listaFiltrada.map((s) => [
+        s.id,
+        s.nome,
+        s.descricao || '',
+        contagemLocalizacoes.get(String(s.id)) || 0,
+        contagemEquipamentos.get(String(s.id)) || 0,
+        s.status,
+      ])
+    )
+  }
+
   return (
     <div className="dash">
       <Sidebar ativo="Cadastro" abertoInicial="Cadastro" />
 
       <main className="dash-conteudo">
-        <h2 className="dash-titulo">Setores</h2>
+        <header className="pg-cabecalho">
+          <span className="pg-sobretitulo">Cadastro</span>
+          <h2 className="dash-titulo">Setores</h2>
+          <p className="pg-subtitulo">Gerencie os setores da organização e acompanhe o status de cada um.</p>
+        </header>
 
         <div className="st-barra">
-          <label className="st-busca">
-            <input
-              type="search"
-              placeholder="Buscar"
-              aria-label="Buscar setor"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
-          </label>
+          <div className="pg-filtros">
+            <label className="st-busca">
+              <input
+                type="search"
+                placeholder="Buscar"
+                aria-label="Buscar setor"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </label>
 
-          <button type="button" className="st-adicionar" onClick={() => setModalAberto(true)}>
-            Adicionar
-          </button>
+            <FiltroStatus valor={filtroStatus} aoMudar={setFiltroStatus} contagens={contagemStatus} />
+          </div>
+
+          <div className="pg-acoes">
+            <BotaoExportar aoClicar={exportar} desabilitado={listaFiltrada.length === 0} />
+
+            <button type="button" className="st-adicionar" onClick={() => setModalAberto(true)}>
+              Adicionar
+            </button>
+          </div>
         </div>
 
         <div className="st-tabela-caixa">
@@ -159,6 +192,8 @@ export default function Setores() {
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Descrição</th>
+                <th>Localizações</th>
+                <th>Equipamentos</th>
                 <th>Status</th>
                 <th aria-label="Ações" />
               </tr>
@@ -166,19 +201,19 @@ export default function Setores() {
               <tbody>
                 {carregando ? (
                   <tr>
-                    <td colSpan={5} className="st-vazio">
+                    <td colSpan={7} className="st-vazio">
                       Carregando setores...
                     </td>
                   </tr>
                 ) : erro && setores.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="st-vazio">
+                    <td colSpan={7} className="st-vazio">
                       {erro}
                     </td>
                   </tr>
                 ) : listaFiltrada.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="st-vazio">
+                    <td colSpan={7} className="st-vazio">
                       Nenhum setor encontrado.
                     </td>
                   </tr>
@@ -190,6 +225,8 @@ export default function Setores() {
                       <td>
                         {s.descricao || '-'}
                       </td>
+                      <td>{contagemLocalizacoes.get(String(s.id)) || 0}</td>
+                      <td>{contagemEquipamentos.get(String(s.id)) || 0}</td>
                       <td className={classeStatus[s.status]}>
                         {s.status}
                       </td>

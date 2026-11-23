@@ -34,6 +34,7 @@ import Analytics from './paginas/Analytics.jsx'
 import Login from './paginas/Login.jsx'
 import Configuracoes from './paginas/Configuracoes.jsx'
 import './estilos/padrao.css'
+import './estilos/listagens.css'
 
 
 

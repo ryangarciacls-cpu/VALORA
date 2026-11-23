@@ -293,3 +293,22 @@
   font-weight: 600;
   line-height: 1.25;
 }
+
+/* Painéis da Home: degradê leve, na mesma linha da sidebar */
+.home-painel {
+  border-color: #efd5c3;
+  background: linear-gradient(180deg, #fce6d6 0%, #fdeee2 45%, #fffaf6 100%);
+}
+
+/* elementos internos um pouco translúcidos pra não "brigarem" com o degradê */
+.home-manutencao-total {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.home-painel-icone {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.home-barra {
+  background: rgba(120, 70, 30, 0.1);
+}

@@ -81,8 +81,8 @@ export default function Equipamentos() {
 
   const [busca, setBusca] = useState('')
   const [status, setStatus] = useState('')
-  const [prioridade, setPrioridade] = useState('')
-  const [periodo, setPeriodo] = useState('')
+  const [setorFiltro, setSetorFiltro] = useState('')
+  const [tipoFiltro, setTipoFiltro] = useState('')
 
   useEffect(() => {
     async function carregarDados() {
@@ -139,6 +139,8 @@ export default function Equipamentos() {
           })
           .filter((e) => {
             const bateStatus = !status || e.status === status
+            const bateSetor = !setorFiltro || e.setorNome === setorFiltro
+            const bateTipo = !tipoFiltro || e.tipo === tipoFiltro
 
             const bateBusca =
               !termo ||
@@ -152,33 +154,61 @@ export default function Equipamentos() {
                 String(campo ?? '').toLowerCase().includes(termo)
               )
 
-            return bateStatus && bateBusca
+            return bateStatus && bateSetor && bateTipo && bateBusca
           })
-      }, [equipamentos, setores, busca, status])
+      }, [equipamentos, setores, busca, status, setorFiltro, tipoFiltro])
+
+// Opções dos filtros (vêm dos próprios dados)
+const opcoesSetor = useMemo(
+  () => ['Todos', ...setores.map((s) => s.nome).sort((a, b) => a.localeCompare(b))],
+  [setores]
+)
+const opcoesTipo = useMemo(
+  () => [
+    'Todos',
+    ...[...new Set(equipamentos.map((e) => e.tipo).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b)
+    ),
+  ],
+  [equipamentos]
+)
+
+const temFiltro = Boolean(busca || status || setorFiltro || tipoFiltro)
+
+function limparFiltros() {
+  setBusca('')
+  setStatus('')
+  setSetorFiltro('')
+  setTipoFiltro('')
+}
 
       // Cards de resumo
       const resumo = [
-        {
-          rotulo: 'Total de equipamentos',
-          valor: equipamentos.length,
-          cor: 'laranja',
-        },
-        {
-          rotulo: 'Ativos',
-          valor: equipamentos.filter((e) => e.status === 'Ativo').length,
-          cor: 'verde',
-        },
-        {
-          rotulo: 'Em manutenção',
-          valor: equipamentos.filter((e) => e.status === 'Em manutenção').length,
-          cor: 'amarelo',
-        },
-        {
-          rotulo: 'Inativos',
-          valor: equipamentos.filter((e) => e.status === 'Inativo').length,
-          cor: 'vermelho',
-        },
-      ]
+  {
+    rotulo: 'Total de equipamentos',
+    valor: equipamentos.length,
+    cor: 'laranja',
+    filtro: '',
+  },
+  {
+    rotulo: 'Ativos',
+    valor: equipamentos.filter((e) => e.status === 'Ativo').length,
+    cor: 'verde',
+    filtro: 'Ativo',
+  },
+  {
+    rotulo: 'Em manutenção',
+    valor: equipamentos.filter((e) => e.status === 'Em manutenção').length,
+    cor: 'amarelo',
+    filtro: 'Em manutenção',
+  },
+  {
+    rotulo: 'Inativos',
+    valor: equipamentos.filter((e) => e.status === 'Inativo').length,
+    cor: 'vermelho',
+    filtro: 'Inativo',
+  },
+]
 
   return (
     <div className="dash">
@@ -193,49 +223,52 @@ export default function Equipamentos() {
         </header>
         {/* Cards de resumo */}
         <section className="eq-cards" aria-label="Resumo dos equipamentos">
-          {resumo.map((c) => (
-            <div key={c.rotulo} className={`eq-card dash-card--${c.cor}`}>
-              <strong>{c.valor}</strong>
-              <span>{c.rotulo}</span>
-            </div>
-          ))}
-        </section>
-          {/* Busca e Filtros */}
-        <section className="eq-filtros" aria-label="Filtros">
-          <label className="eq-busca">
-            <Icone nome="busca" />
-            <input
-              type="search"
-              placeholder="buscar"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
-          </label>
+  {resumo.map((c) => {
+    // "Total" (filtro vazio) limpa o filtro; os demais filtram por status.
+    const ativo = c.filtro !== '' && status === c.filtro
 
-          <Filtro
-            rotulo="Status"
-            valor={status}
-            onChange={setStatus}
-            opcoes={['Todos', 'Ativo', 'Em manutenção', 'Inativo']}
-          />
-          <Filtro
-            rotulo="Prioridade"
-            valor={prioridade}
-            onChange={setPrioridade}
-            opcoes={['Todos', 'Baixa', 'Média', 'Alta']}
-          />
-          <Filtro
-            rotulo="Período"
-            icone="calendario"
-            valor={periodo}
-            onChange={setPeriodo}
-            opcoes={['Todos', 'Últimos 7 dias', 'Últimos 30 dias', 'Últimos 12 meses']}
-          />
+    return (
+      <button
+        key={c.rotulo}
+        type="button"
+        className={`eq-card eq-card--clicavel dash-card--${c.cor} ${ativo ? 'eq-card--ativo' : ''}`}
+        aria-pressed={ativo}
+        title={ativo || c.filtro === '' ? 'Mostrar todos' : `Filtrar: ${c.rotulo}`}
+        onClick={() => setStatus(ativo ? '' : c.filtro)}
+      >
+        <strong>{c.valor}</strong>
+        <span>{c.rotulo}</span>
+      </button>
+    )
+  })}
+</section>
+          {/* Busca e Filtros (o status é filtrado pelos cards acima) */}
+<section className="eq-filtros" aria-label="Busca e filtros">
+  <label className="eq-busca">
+    <Icone nome="busca" />
+    <input
+      type="search"
+      placeholder="Buscar por patrimônio, equipamento, setor, tipo ou marca"
+      value={busca}
+      onChange={(e) => setBusca(e.target.value)}
+    />
+  </label>
 
-          <button type="button" className="eq-botao-filtros">
-            <Icone nome="filtro" /> Filtros
-          </button>
-        </section>
+  <Filtro rotulo="Setor" valor={setorFiltro} onChange={setSetorFiltro} opcoes={opcoesSetor} />
+  <Filtro rotulo="Tipo" valor={tipoFiltro} onChange={setTipoFiltro} opcoes={opcoesTipo} />
+
+  {temFiltro && (
+    <button type="button" className="eq-limpar" onClick={limparFiltros}>
+      Limpar filtros
+    </button>
+  )}
+</section>
+
+<p className="eq-contagem">
+  {listaFiltrada.length === equipamentos.length
+    ? `${equipamentos.length} equipamentos`
+    : `${listaFiltrada.length} de ${equipamentos.length} equipamentos`}
+</p>
           {/* Tabela de Equipamentos */}
         <div className="eq-tabela-caixa">
           <table>

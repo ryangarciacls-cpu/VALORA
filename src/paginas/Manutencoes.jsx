@@ -208,12 +208,12 @@ export default function Manutencoes() {
         statusLista.includes(m.statusExibicao)
       ).length
 
-    return [
-      { cor: 'abertas', valor: contar('Aberta'), rotulo: 'Abertas' },
-      { cor: 'andamento', valor: contar('Em Andamento'), rotulo: 'Em Andamento' },
+          return [
+      { cor: 'abertas', valor: contar('Aberta'), rotulo: 'Abertas', filtro: 'Aberta' },
+      { cor: 'andamento', valor: contar('Em Andamento'), rotulo: 'Em Andamento', filtro: 'Em Andamento' },
       { cor: 'aguardando', valor: contar('Aguardando peça'), rotulo: 'Aguardando' },
       { cor: 'analise', valor: contar('Em Análise'), rotulo: 'Em Análise' },
-      { cor: 'concluidas', valor: contar('Concluída'), rotulo: 'Concluídas' },
+      { cor: 'concluidas', valor: contar('Concluída'), rotulo: 'Concluídas', filtro: 'Concluída' },
     ]
   }, [manutencoesComEquipamentos])
 
@@ -257,6 +257,15 @@ export default function Manutencoes() {
         (b.dataAbertura || '').localeCompare(a.dataAbertura || '')
       )
   }, [manutencoesComEquipamentos, busca, status, prioridade, periodo])
+  // Filtros ativos (o status é filtrado pelos cards)
+       const temFiltro = Boolean(busca || status || prioridade || periodo)
+
+       function limparFiltros() {
+  setBusca('')
+  setStatus('')
+  setPrioridade('')
+  setPeriodo('')
+}
 
   return (
     <div className="dash">
@@ -278,62 +287,75 @@ export default function Manutencoes() {
         ) : (
           <>
             <section className="mt-cards" aria-label="Resumo das manutenções">
-              {resumo.map((c) => (
-                <div key={c.rotulo} className={`mt-card mt-card--${c.cor}`}>
-                  <strong>{c.valor}</strong>
-                  <span>{c.rotulo}</span>
-                </div>
-              ))}
-            </section>
+  {resumo.map((c) => {
+    // Só os status que existem no filtro da tabela são clicáveis.
+    if (!c.filtro) {
+      return (
+        <div key={c.rotulo} className={`mt-card mt-card--${c.cor}`}>
+          <strong>{c.valor}</strong>
+          <span>{c.rotulo}</span>
+        </div>
+      )
+    }
 
-            <section className="mt-filtros" aria-label="Filtros">
-              <label className="mt-busca">
-                <Icone nome="busca" />
+    const ativo = status === c.filtro
 
-                <input
-                  type="search"
-                  placeholder="buscar"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </label>
+    return (
+      <button
+        key={c.rotulo}
+        type="button"
+        className={`mt-card mt-card--${c.cor} mt-card--clicavel ${ativo ? 'mt-card--ativo' : ''}`}
+        aria-pressed={ativo}
+        title={ativo ? 'Remover filtro' : `Filtrar: ${c.rotulo}`}
+        onClick={() => setStatus(ativo ? '' : c.filtro)}
+      >
+        <strong>{c.valor}</strong>
+        <span>{c.rotulo}</span>
+      </button>
+    )
+  })}
+</section>
 
-              <Filtro
-                rotulo="Status"
-                valor={status}
-                onChange={setStatus}
-                opcoes={statusOpcoes}
-              />
+            <section className="mt-filtros" aria-label="Busca e filtros">
+  <label className="mt-busca">
+    <Icone nome="busca" />
 
-              <Filtro
-                rotulo="Prioridade"
-                valor={prioridade}
-                onChange={setPrioridade}
-                opcoes={prioridadeOpcoes}
-                disabled={!manutencoes.some((m) => m.prioridade)}
-              />
+    <input
+      type="search"
+      placeholder="Buscar por patrimônio, equipamento, descrição ou prioridade"
+      value={busca}
+      onChange={(e) => setBusca(e.target.value)}
+    />
+  </label>
 
-              <Filtro
-                rotulo="Período"
-                icone="calendario"
-                valor={periodo}
-                onChange={setPeriodo}
-                opcoes={Object.keys(periodos)}
-              />
+  <Filtro
+    rotulo="Prioridade"
+    valor={prioridade}
+    onChange={setPrioridade}
+    opcoes={prioridadeOpcoes}
+    disabled={!manutencoes.some((m) => m.prioridade)}
+  />
 
-              <button
-                type="button"
-                className="mt-botao-filtros"
-                onClick={() => {
-                  setBusca('')
-                  setStatus('')
-                  setPrioridade('')
-                  setPeriodo('')
-                }}
-              >
-                <Icone nome="filtro" /> Limpar filtros
-              </button>
-            </section>
+  <Filtro
+    rotulo="Período"
+    icone="calendario"
+    valor={periodo}
+    onChange={setPeriodo}
+    opcoes={Object.keys(periodos)}
+  />
+
+  {temFiltro && (
+    <button type="button" className="mt-limpar" onClick={limparFiltros}>
+      Limpar filtros
+    </button>
+  )}
+</section>
+
+<p className="mt-contagem">
+  {listaFiltrada.length === manutencoesComEquipamentos.length
+    ? `${manutencoesComEquipamentos.length} manutenções`
+    : `${listaFiltrada.length} de ${manutencoesComEquipamentos.length} manutenções`}
+</p>
 
             <div className="mt-tabela-caixa">
               <table>
